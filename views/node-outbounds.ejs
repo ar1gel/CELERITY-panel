@@ -1,5 +1,5 @@
 <div class="page-header">
-    <a href="/panel/nodes/<%= node._id %>" class="btn btn-back">← Назад к ноде</a>
+    <a href="/panel/nodes/<%= node._id %>" class="btn btn-back"><%= t('outbounds.backToNode') %></a>
 </div>
 
 <% if (message) { %>
@@ -47,7 +47,6 @@
 }
 .acl-tag:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-/* Proxy section */
 .proxy-section { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
 .proxy-toggle {
     display: flex; align-items: center; justify-content: space-between;
@@ -102,61 +101,53 @@
 
 <div class="card">
     <div class="card-header">
-        <h2>Фильтрация трафика — <%= node.name %></h2>
-        <p class="hint" style="margin:0">
-            Правила определяют что заблокировать, что пустить напрямую, или перенаправить через прокси.
-        </p>
+        <h2><%= t('outbounds.title') %> — <%= node.name %></h2>
+        <p class="hint" style="margin:0"><%= t('outbounds.pageDesc') %></p>
     </div>
     <div class="card-body">
         <form method="POST" action="/panel/nodes/<%= node._id %>/outbounds" id="outboundsForm">
 
             <!-- PRESETS -->
             <div class="form-section">
-                <h3>Готовые сценарии</h3>
+                <h3><%= t('outbounds.presets') %> <small style="font-weight:400; color:var(--text-muted); font-size:12px;"><%= t('outbounds.presetsHint') %></small></h3>
                 <div class="presets-grid">
                     <div class="preset-card" onclick="applyPreset('block-ads', this)">
                         <div class="preset-icon">🚫</div>
-                        <div class="preset-title">Блокировать рекламу</div>
-                        <div class="preset-desc">doubleclick, googlesyndication и др.</div>
+                        <div class="preset-title"><%= t('outbounds.blockAds') %></div>
+                        <div class="preset-desc"><%= t('outbounds.blockAdsDesc') %></div>
                     </div>
                     <div class="preset-card" onclick="applyPreset('block-cn', this)">
                         <div class="preset-icon">🛡️</div>
-                        <div class="preset-title">Блокировать CN / Private</div>
-                        <div class="preset-desc">Китайские и частные IP-адреса</div>
+                        <div class="preset-title"><%= t('outbounds.blockCn') %></div>
+                        <div class="preset-desc"><%= t('outbounds.blockCnDesc') %></div>
                     </div>
                     <div class="preset-card" onclick="applyPreset('direct-ru', this)">
                         <div class="preset-icon">🇷🇺</div>
-                        <div class="preset-title">RU — напрямую</div>
-                        <div class="preset-desc">Российские сайты идут через сервер напрямую</div>
+                        <div class="preset-title"><%= t('outbounds.directRu') %></div>
+                        <div class="preset-desc"><%= t('outbounds.directRuDesc') %></div>
                     </div>
                     <div class="preset-card" onclick="applyPreset('direct-all', this)">
                         <div class="preset-icon">↗</div>
-                        <div class="preset-title">Всё напрямую</div>
-                        <div class="preset-desc">Без ограничений, весь трафик разрешён</div>
+                        <div class="preset-title"><%= t('outbounds.directAll') %></div>
+                        <div class="preset-desc"><%= t('outbounds.directAllDesc') %></div>
                     </div>
                     <div class="preset-card" onclick="applyPreset('clear', this)">
                         <div class="preset-icon">🗑️</div>
-                        <div class="preset-title">Сбросить</div>
-                        <div class="preset-desc">Удалить все правила, вернуть дефолт</div>
+                        <div class="preset-title"><%= t('outbounds.reset') %></div>
+                        <div class="preset-desc"><%= t('outbounds.resetDesc') %></div>
                     </div>
                 </div>
             </div>
 
-            <!-- ACL RULES — main section -->
+            <!-- ACL RULES -->
             <div class="form-section">
-                <h3>Правила</h3>
-                <p class="hint" style="margin-bottom: 12px;">
-                    Одно правило на строку. Работают два встроенных действия:
-                    <code>reject(…)</code> — заблокировать,
-                    <code>direct(…)</code> — пустить напрямую через сервер.
-                    Правила применяются <strong>сверху вниз</strong>, первое совпавшее выигрывает.
-                </p>
+                <h3><%= t('outbounds.rules') %></h3>
+                <p class="hint" style="margin-bottom: 12px;"><%- t('outbounds.rulesHint') %></p>
 
                 <div id="noProxyAclWarning" class="alert alert-warning" style="display:none; margin-bottom:10px; font-size:13px;"></div>
 
-                <!-- proxy name chips -->
                 <div id="proxyChipsWrap" style="display:none; margin-bottom:8px;">
-                    <small style="color:var(--text-muted)">Твои прокси — нажми чтобы вставить в правило:</small>
+                    <small style="color:var(--text-muted)"><%= t('outbounds.proxyChipsHint') %></small>
                     <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;" id="proxyChips"></div>
                 </div>
 
@@ -164,7 +155,7 @@
                     placeholder="reject(suffix:doubleclick.net)&#10;reject(geoip:cn)&#10;reject(geoip:private)&#10;direct(all)"><%= (node.aclRules || []).join('\n') %></textarea>
 
                 <div style="margin-top: 10px;">
-                    <small style="color: var(--text-muted)">Шаблоны:</small>
+                    <small style="color: var(--text-muted)"><%= t('outbounds.templates') %>:</small>
                     <div class="acl-hint-tags">
                         <span class="acl-tag" onclick="insertAcl('direct(all)')">direct(all)</span>
                         <span class="acl-tag" onclick="insertAcl('reject(geoip:cn)')">reject(geoip:cn)</span>
@@ -180,22 +171,22 @@
                 </div>
 
                 <div class="alert alert-warning" style="margin-top:12px; font-size:12px; padding:8px 12px;">
-                    ℹ️ Если задать правила, дефолтные правила сервера (<code>reject(geoip:cn)</code>, <code>reject(geoip:private)</code>) отключатся. Добавь их вручную если нужно.
+                    ℹ️ <%- t('outbounds.defaultRulesWarning') %>
                 </div>
 
                 <button type="button" class="preview-toggle" onclick="togglePreview()">
-                    <span id="previewArrow">▶</span> Предпросмотр YAML
+                    <span id="previewArrow">▶</span> <%= t('outbounds.yamlPreview') %>
                 </button>
                 <pre class="preview-yaml" id="yamlPreview" style="display:none"></pre>
             </div>
 
-            <!-- PROXY SERVERS — advanced, collapsed -->
+            <!-- PROXY SERVERS -->
             <div class="form-section">
                 <div class="proxy-section">
                     <button type="button" class="proxy-toggle" id="proxyToggleBtn" onclick="toggleProxySection()">
                         <span>
-                            🔁 Прокси-серверы
-                            <small style="color:var(--text-muted); font-weight:400; margin-left:6px;">для маршрутизации трафика через SOCKS5/HTTP прокси</small>
+                            🔁 <%= t('outbounds.proxyServers') %>
+                            <small style="color:var(--text-muted); font-weight:400; margin-left:6px;"><%= t('outbounds.proxyServersHint') %></small>
                             <% if (node.outbounds && node.outbounds.length > 0) { %>
                             <span style="background:var(--accent);color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:6px;"><%= node.outbounds.length %></span>
                             <% } %>
@@ -203,42 +194,39 @@
                         <span class="proxy-toggle-arrow">▼</span>
                     </button>
                     <div class="proxy-body" id="proxyBody">
-                        <p class="hint" style="margin-bottom:14px;">
-                            Нужны только если хочешь направить часть трафика через <strong>свой прокси-сервер</strong>.
-                            Добавь прокси здесь, затем используй его имя в правиле выше: <code>имя_прокси(условие)</code>
-                        </p>
+                        <p class="hint" style="margin-bottom:14px;"><%- t('outbounds.proxyDesc') %></p>
 
                         <div class="ob-cards" id="obCards"></div>
                         <div id="obHiddenInputs"></div>
 
                         <div class="add-proxy-row">
                             <div class="form-group" style="flex:1.2; min-width:120px;">
-                                <label>Название</label>
+                                <label><%= t('outbounds.proxyName') %></label>
                                 <input type="text" id="newObName" placeholder="my-proxy" maxlength="40"
                                     onkeydown="if(event.key==='Enter'){event.preventDefault();addProxy();}">
                             </div>
                             <div class="form-group" style="flex:0 0 100px;">
-                                <label>Тип</label>
+                                <label><%= t('outbounds.proxyType') %></label>
                                 <select id="newObType">
                                     <option value="socks5">SOCKS5</option>
                                     <option value="http">HTTP</option>
                                 </select>
                             </div>
                             <div class="form-group" style="flex:1.5; min-width:150px;">
-                                <label>Адрес (host:port)</label>
+                                <label><%= t('outbounds.proxyAddr') %></label>
                                 <input type="text" id="newObAddr" placeholder="1.2.3.4:1080">
                             </div>
                             <div class="form-group" style="flex:1; min-width:90px;">
-                                <label>Логин</label>
-                                <input type="text" id="newObUsername" placeholder="(необяз.)">
+                                <label><%= t('outbounds.proxyLogin') %></label>
+                                <input type="text" id="newObUsername" placeholder="<%= t('outbounds.proxyOptional') %>">
                             </div>
                             <div class="form-group" style="flex:1; min-width:90px;">
-                                <label>Пароль</label>
-                                <input type="password" id="newObPassword" placeholder="(необяз.)">
+                                <label><%= t('outbounds.proxyPassword') %></label>
+                                <input type="password" id="newObPassword" placeholder="<%= t('outbounds.proxyOptional') %>">
                             </div>
                             <div class="form-group" style="flex:0 0 auto;">
                                 <label>&nbsp;</label>
-                                <button type="button" class="btn btn-primary" onclick="addProxy()">+ Добавить</button>
+                                <button type="button" class="btn btn-primary" onclick="addProxy()"><%= t('outbounds.addProxy') %></button>
                             </div>
                         </div>
                     </div>
@@ -246,12 +234,12 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">💾 Сохранить</button>
+                <button type="submit" class="btn btn-primary">💾 <%= t('common.save') %></button>
                 <button type="button" class="btn btn-success" id="btnApply" onclick="saveAndApply()"
-                    <%= !node.ssh?.password && !node.ssh?.privateKey ? 'disabled title="Настройте SSH для ноды"' : '' %>>
-                    🚀 Сохранить и применить к ноде
+                    <%= !node.ssh?.password && !node.ssh?.privateKey ? 'disabled title="Configure SSH first"' : '' %>>
+                    🚀 <%= t('outbounds.saveAndApply') %>
                 </button>
-                <a href="/panel/nodes/<%= node._id %>" class="btn">Отмена</a>
+                <a href="/panel/nodes/<%= node._id %>" class="btn"><%= t('common.cancel') %></a>
             </div>
         </form>
     </div>
@@ -259,9 +247,18 @@
 
 <script>
 const NODE_ID = '<%= node._id %>';
+const I18N = {
+    noProxyWarning: '<%- t("outbounds.noProxyWarning") %>',
+    replaceRules: '<%= t("outbounds.replaceRules") %>',
+    applying: '<%= t("outbounds.applying") %>',
+    applied: '<%= t("outbounds.applied") %>',
+    applyError: '<%= t("outbounds.applyError") %>',
+    noRulesDefault: '<%= t("outbounds.noRulesDefault") %>',
+    proxyExists: '<%= t("common.error") %>: Proxy already exists'
+};
+
 let pendingOutbounds = <%- JSON.stringify((node.outbounds || []).filter(o => o.type === 'socks5' || o.type === 'http')) %>;
 
-// ===== PRESETS =====
 const PRESETS = {
     'block-ads': [
         'reject(suffix:doubleclick.net)',
@@ -282,7 +279,7 @@ function applyPreset(key, el) {
     if (rules === undefined) return;
 
     const ta = document.getElementById('aclRulesEditor');
-    if (key !== 'clear' && ta.value.trim() && !confirm('Заменить текущие правила?')) return;
+    if (key !== 'clear' && ta.value.trim() && !confirm(I18N.replaceRules)) return;
 
     ta.value = rules.join('\n');
     checkProxyWarning();
@@ -292,7 +289,6 @@ function applyPreset(key, el) {
     setTimeout(() => el.classList.remove('flash'), 800);
 }
 
-// ===== ACL HELPERS =====
 function insertAcl(rule) {
     const ta = document.getElementById('aclRulesEditor');
     const lines = ta.value ? ta.value.split('\n') : [];
@@ -315,14 +311,13 @@ function checkProxyWarning() {
     const warn = document.getElementById('noProxyAclWarning');
     if (hasProxy && !aclVal) {
         const name = pendingOutbounds[0]?.name || 'my-proxy';
-        warn.innerHTML = '⚠️ Есть прокси, но нет правил — прокси не будет использоваться. Добавьте правило: <code>' + escHtml(name) + '(all)</code>';
+        warn.innerHTML = '⚠️ ' + I18N.noProxyWarning + ' <code>' + escHtml(name) + '(all)</code>';
         warn.style.display = '';
     } else {
         warn.style.display = 'none';
     }
 }
 
-// ===== PROXY SECTION =====
 function toggleProxySection() {
     const body = document.getElementById('proxyBody');
     const btn = document.getElementById('proxyToggleBtn');
@@ -340,7 +335,7 @@ function addProxy() {
 
     if (!name) { document.getElementById('newObName').focus(); return; }
     if (!addr)  { document.getElementById('newObAddr').focus(); return; }
-    if (pendingOutbounds.some(o => o.name === name)) { alert('Прокси "' + name + '" уже существует'); return; }
+    if (pendingOutbounds.some(o => o.name === name)) { alert(I18N.proxyExists + ': ' + name); return; }
 
     pendingOutbounds.push({ name, type, addr, username, password });
     renderProxies();
@@ -377,7 +372,6 @@ function renderProxies() {
         <input type="hidden" name="outbound_password" value="${escHtml(ob.password || '')}">
     `).join('');
 
-    // chips in ACL section
     const wrap = document.getElementById('proxyChipsWrap');
     const chips = document.getElementById('proxyChips');
     if (pendingOutbounds.length === 0) { wrap.style.display = 'none'; return; }
@@ -385,13 +379,12 @@ function renderProxies() {
     chips.innerHTML = pendingOutbounds.map(ob => `
         <button type="button"
             style="background:rgba(99,102,241,0.15);color:#818cf8;border:none;border-radius:20px;padding:4px 12px;font-size:12px;font-family:monospace;cursor:pointer;font-weight:600"
-            onclick="insertProxyName('${escHtml(ob.name)}')" title="Вставить в правило">
+            onclick="insertProxyName('${escHtml(ob.name)}')" title="Insert into rule">
             🔁 ${escHtml(ob.name)}
         </button>
     `).join('');
 }
 
-// ===== YAML PREVIEW =====
 function togglePreview() {
     const pre = document.getElementById('yamlPreview');
     const arrow = document.getElementById('previewArrow');
@@ -424,15 +417,14 @@ function updatePreview() {
         yaml += 'acl:\n  inline:\n';
         aclRules.forEach(r => { yaml += `    - ${r}\n`; });
     }
-    document.getElementById('yamlPreview').textContent = yaml || '(правил нет — используется конфиг по умолчанию)';
+    document.getElementById('yamlPreview').textContent = yaml || I18N.noRulesDefault;
 }
 
-// ===== SAVE & APPLY =====
 async function saveAndApply() {
     const btn = document.getElementById('btnApply');
     const orig = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '⏳ Применяется...';
+    btn.innerHTML = '⏳ ' + I18N.applying;
     const form = document.getElementById('outboundsForm');
     try {
         await fetch(form.action, {
@@ -444,14 +436,14 @@ async function saveAndApply() {
         const res = await fetch('/api/nodes/' + NODE_ID + '/update-config', { method: 'POST' });
         const data = await res.json();
         if (data.success) {
-            btn.innerHTML = '✅ Применено';
+            btn.innerHTML = '✅ ' + I18N.applied;
             setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 3000);
         } else {
-            alert('Ошибка: ' + (data.error || 'Неизвестная'));
+            alert(I18N.applyError + ': ' + (data.error || 'Unknown'));
             btn.innerHTML = orig; btn.disabled = false;
         }
     } catch (e) {
-        alert('Ошибка: ' + e.message);
+        alert(I18N.applyError + ': ' + e.message);
         btn.innerHTML = orig; btn.disabled = false;
     }
 }
@@ -460,13 +452,9 @@ function escHtml(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ===== INIT =====
 renderProxies();
 checkProxyWarning();
-
-// Auto-open proxy section if proxies exist
 if (pendingOutbounds.length > 0) toggleProxySection();
-
 document.getElementById('aclRulesEditor').addEventListener('input', () => {
     checkProxyWarning();
     if (document.getElementById('yamlPreview').style.display !== 'none') updatePreview();

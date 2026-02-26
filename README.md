@@ -67,6 +67,7 @@ MONGO_PASSWORD=yourmongopassword   # openssl rand -hex 16
 - 🚀 **Auto Node Setup** — Install Hysteria, certs, port hopping in one click
 - 👥 **Server Groups** — Flexible user-to-node mapping
 - ⚖️ **Load Balancing** — Distribute users by server load
+- 🚫 **Traffic Filtering (ACL)** — Block ads, domains, IPs; route through custom proxies
 - 📊 **Statistics** — Online users, traffic, server status
 - 📱 **Subscriptions** — Auto-format for Clash, Sing-box, Shadowrocket
 - 🔄 **Backup/Restore** — Automatic database backups
@@ -284,6 +285,44 @@ iptables -t nat -A PREROUTING -p udp --dport 20000:50000 -j REDIRECT --to-port 4
 | `name` | String | Group name |
 | `color` | String | UI color (#hex) |
 | `maxDevices` | Number | Device limit for group |
+
+---
+
+## 🚫 Traffic Filtering (ACL)
+
+Control how traffic is routed on each node. Access via **Panel → Node → Traffic Filtering**.
+
+### Built-in Actions
+
+| Action | Description |
+|--------|-------------|
+| `reject(...)` | Block connection |
+| `direct(...)` | Allow through server |
+
+### Rule Examples
+
+```
+reject(suffix:doubleclick.net)     # Block ads
+reject(suffix:googlesyndication.com)
+reject(geoip:cn)                   # Block Chinese IPs
+reject(geoip:private)              # Block private IPs
+direct(all)                        # Allow everything else
+```
+
+### Presets
+
+One-click presets available:
+- **Block Ads** — doubleclick, googlesyndication, etc.
+- **Block CN/Private** — Chinese and private IP ranges
+- **RU Direct** — Russian sites go through server directly
+- **All Direct** — No restrictions
+
+### Custom Proxy Routing
+
+Route specific traffic through your own SOCKS5/HTTP proxy:
+
+1. Add proxy in "Proxy Servers" section (e.g., `my-proxy`, SOCKS5, `1.2.3.4:1080`)
+2. Use in rules: `my-proxy(geoip:ru)` or `my-proxy(suffix:example.com)`
 
 ---
 
