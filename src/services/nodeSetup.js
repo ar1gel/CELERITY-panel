@@ -12,22 +12,33 @@ const Settings = require('../models/settingsModel');
 const configGenerator = require('./configGenerator');
 
 /**
- * Read panel's SSL certificates from Greenlock directory
+ * Read panel's SSL certificates from Greenlock or Caddy directory
  * @param {string} domain - Panel domain
  * @returns {Object|null} { cert, key } or null if not found
  */
 function getPanelCertificates(domain) {
     try {
-        // Greenlock stores certificates in greenlock.d/live/{domain}/
-        const greenlockDir = path.join(__dirname, '../../greenlock.d/live', domain);
+        let cert, key;
         
+        // Try Caddy certificates first (when USE_CADDY=true)
+        // Caddy stores certs in /caddy_data/caddy/certificates/acme-v02.api.letsencrypt.org-directory/{domain}/
+        const caddyDir = path.join('/caddy_data/caddy/certificates/acme-v02.api.letsencrypt.org-directory', domain);
+        const caddyCertPath = path.join(caddyDir, `${domain}.crt`);
+        const caddyKeyPath = path.join(caddyDir, `${domain}.key`);
+        
+        if (fs.existsSync(caddyCertPath) && fs.existsSync(caddyKeyPath)) {
+            cert = fs.readFileSync(caddyCertPath, 'utf8');
+            key = fs.readFileSync(caddyKeyPath, 'utf8');
+            logger.info(`[NodeSetup] Found Caddy certificates for ${domain}`);
+            return { cert, key };
+        }
+        
+        // Try Greenlock certificates (when USE_CADDY is not set)
+        // Greenlock stores certs in greenlock.d/live/{domain}/
+        const greenlockDir = path.join(__dirname, '../../greenlock.d/live', domain);
         const certPath = path.join(greenlockDir, 'cert.pem');
         const keyPath = path.join(greenlockDir, 'privkey.pem');
-        
-        // Also try fullchain.pem if cert.pem doesn't exist
         const fullchainPath = path.join(greenlockDir, 'fullchain.pem');
-        
-        let cert, key;
         
         if (fs.existsSync(certPath)) {
             cert = fs.readFileSync(certPath, 'utf8');
@@ -40,11 +51,11 @@ function getPanelCertificates(domain) {
         }
         
         if (cert && key) {
-            logger.info(`[NodeSetup] Found panel certificates for ${domain}`);
+            logger.info(`[NodeSetup] Found Greenlock certificates for ${domain}`);
             return { cert, key };
         }
         
-        logger.warn(`[NodeSetup] Panel certificates not found in ${greenlockDir}`);
+        logger.warn(`[NodeSetup] Panel certificates not found (checked Caddy: ${caddyDir}, Greenlock: ${greenlockDir})`);
         return null;
         
     } catch (error) {

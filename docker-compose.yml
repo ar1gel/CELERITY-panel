@@ -58,6 +58,7 @@ services:
     volumes:
       - ./logs:/app/logs
       - ./backups:/app/backups
+      - caddy_data:/caddy_data:ro
     env_file:
       - .env
     environment:
