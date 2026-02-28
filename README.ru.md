@@ -33,6 +33,10 @@ mkdir hysteria-panel && cd hysteria-panel
 curl -O https://raw.githubusercontent.com/ClickDevTech/hysteria-panel/main/docker-compose.hub.yml
 curl -O https://raw.githubusercontent.com/ClickDevTech/hysteria-panel/main/docker.env.example
 
+# Создать конфиг SSL (обязательно для HTTPS)
+mkdir -p greenlock.d
+curl -o greenlock.d/config.json https://raw.githubusercontent.com/ClickDevTech/hysteria-panel/main/greenlock.d/config.json
+
 cp docker.env.example .env
 nano .env  # Укажите домен, email и секреты
 docker compose -f docker-compose.hub.yml up -d
