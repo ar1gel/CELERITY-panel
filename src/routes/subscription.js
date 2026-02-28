@@ -217,14 +217,27 @@ function generateURI(user, node, config) {
 
 // ==================== FORMAT GENERATORS ====================
 
-function generateURIList(user, nodes) {
+function generateURIList(user, nodes, profileTitle) {
     const uris = [];
     nodes.forEach(node => {
         getNodeConfigs(node).forEach(cfg => {
             uris.push(generateURI(user, node, cfg));
         });
     });
-    return uris.join('\n');
+    
+    // Метаданные в теле для Happ (iOS) и других клиентов
+    const tx = user.traffic?.tx || 0;
+    const rx = user.traffic?.rx || 0;
+    const total = user.trafficLimit || 0;
+    const expire = user.expireAt ? Math.floor(new Date(user.expireAt).getTime() / 1000) : 0;
+    
+    const meta = [
+        `#profile-title: ${profileTitle || 'Hysteria'}`,
+        `#profile-update-interval: 12`,
+        `#subscription-userinfo: upload=${tx}; download=${rx}; total=${total}; expire=${expire}`,
+    ].join('\n');
+    
+    return meta + '\n' + uris.join('\n');
 }
 
 function generateClashYAML(user, nodes) {
@@ -580,10 +593,11 @@ router.get('/files/:token', async (req, res) => {
 function generateSubscriptionData(user, nodes, format, userAgent) {
     let content;
     let needsBase64 = false;
+    const profileTitle = getSubscriptionTitle(user);
     
     switch (format) {
         case 'shadowrocket':
-            content = generateURIList(user, nodes);
+            content = generateURIList(user, nodes, profileTitle);
             needsBase64 = true;
             break;
         case 'clash':
@@ -597,7 +611,7 @@ function generateSubscriptionData(user, nodes, format, userAgent) {
         case 'uri':
         case 'raw':
         default:
-            content = generateURIList(user, nodes);
+            content = generateURIList(user, nodes, profileTitle);
             if (/quantumult/i.test(userAgent)) {
                 needsBase64 = true;
             }
