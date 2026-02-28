@@ -205,7 +205,6 @@ function generateURI(user, node, config) {
     
     // SNI for TLS handshake (can be custom domain for masquerading)
     if (config.sni) params.push(`sni=${config.sni}`);
-    params.push('alpn=h3');
     // insecure=1 only if no valid certificate (self-signed without domain)
     params.push(`insecure=${config.hasCert ? '0' : '1'}`);
     if (config.portRange) params.push(`mport=${config.portRange}`);
