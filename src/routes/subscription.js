@@ -284,7 +284,6 @@ function generateSingboxJSON(user, nodes) {
             // Format: "20000-50000" -> ["20000:50000"]
             if (cfg.portRange) {
                 outbound.server_ports = [cfg.portRange.replace('-', ':')];
-                outbound.hop_interval = '30s';
             } else {
                 outbound.server_port = cfg.port;
             }
