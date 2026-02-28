@@ -26,7 +26,7 @@ function detectFormat(userAgent) {
     if (/happ/.test(ua)) return 'uri';
     if (/clash|stash|surge|loon/.test(ua)) return 'clash';
     // sing-box based clients: Hiddify, NekoBox, SFI/SFA/SFM/SFT, Karing
-    if (/hiddify|sing-?box|nekobox|neko|sfi|sfa|sfm|sft|karing|hiddifynext/.test(ua)) return 'singbox';
+    if (/hiddify|hiddifynext|sing-?box|nekobox|nekoray|neko|sfi|sfa|sfm|sft|karing/.test(ua)) return 'singbox';
     return 'uri';
 }
 
@@ -258,7 +258,7 @@ function generateClashYAML(user, nodes) {
 
 function generateSingboxJSON(user, nodes) {
     const auth = `${user.userId}:${user.password}`;
-    const outbounds = [];
+    const proxyOutbounds = [];
     const tags = [];
     
     nodes.forEach(node => {
@@ -288,15 +288,56 @@ function generateSingboxJSON(user, nodes) {
                 outbound.server_port = cfg.port;
             }
             
-            outbounds.push(outbound);
+            proxyOutbounds.push(outbound);
         });
     });
     
-    outbounds.unshift({ type: 'selector', tag: 'proxy', outbounds: tags, default: tags[0] });
-    outbounds.push({ type: 'direct', tag: 'direct' });
-    outbounds.push({ type: 'block', tag: 'block' });
-    
-    return { outbounds };
+    const outbounds = [
+        { type: 'selector', tag: 'proxy', outbounds: tags.length > 0 ? [...tags, 'direct'] : ['direct'], default: tags[0] || 'direct' },
+        { type: 'urltest', tag: 'auto', outbounds: tags, url: 'https://www.gstatic.com/generate_204', interval: '3m', tolerance: 50 },
+        ...proxyOutbounds,
+        { type: 'direct', tag: 'direct' },
+        { type: 'block', tag: 'block' },
+        { type: 'dns', tag: 'dns-out' },
+    ];
+
+    // Полная структура sing-box — требуется Hiddify и другим клиентам для распознавания формата
+    return {
+        log: { level: 'warn', timestamp: true },
+        dns: {
+            servers: [
+                { tag: 'dns-remote', address: 'tls://8.8.8.8', address_resolver: 'dns-local' },
+                { tag: 'dns-local', address: '223.5.5.5', detour: 'direct' },
+                { tag: 'dns-block', address: 'rcode://refused' },
+            ],
+            rules: [
+                { outbound: 'any', server: 'dns-local' },
+            ],
+            final: 'dns-remote',
+        },
+        inbounds: [
+            {
+                type: 'tun',
+                tag: 'tun-in',
+                address: ['172.19.0.1/30', 'fdfe:dcba:9876::1/126'],
+                mtu: 9000,
+                auto_route: true,
+                strict_route: true,
+                stack: 'system',
+                sniff: true,
+                sniff_override_destination: false,
+            },
+        ],
+        outbounds,
+        route: {
+            rules: [
+                { protocol: 'dns', outbound: 'dns-out' },
+                { inbound: 'tun-in', action: 'sniff' },
+            ],
+            final: 'proxy',
+            auto_detect_interface: true,
+        },
+    };
 }
 
 // ==================== HTML PAGE ====================
