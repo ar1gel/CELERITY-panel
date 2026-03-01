@@ -55,10 +55,32 @@
             </div>
             
             <div class="form-group">
+                <label><%= t('users.expireModeLabel') %></label>
+                <div class="radio-group">
+                    <label class="checkbox-label">
+                        <input type="radio" name="expireMode" value="days" checked>
+                        <%= t('users.expireModeDays') %>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="radio" name="expireMode" value="datetime">
+                        <%= t('users.expireModeDatetime') %>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group" id="expireDaysGroup">
                 <label for="expireDays"><%= t('users.expireDays') %></label>
                 <input type="number" id="expireDays" name="expireDays" placeholder="30" value="30" min="0">
                 <small><%= t('users.expireDaysHint') %></small>
             </div>
+
+            <div class="form-group" id="expireDatetimeGroup" style="display: none;">
+                <label for="expireAtLocal"><%= t('users.expireAtLabel') %></label>
+                <input type="datetime-local" id="expireAtLocal" name="expireAtLocal" class="datetime-input">
+                <small><%= t('users.expireAtHint') %></small>
+            </div>
+
+            <input type="hidden" id="expireAt" name="expireAt" value="">
             
             <div class="form-group">
                 <label class="checkbox-label">
@@ -73,4 +95,68 @@
             </div>
         </form>
     </div>
+
+    <script>
+        (function() {
+            const expireModeInputs = document.querySelectorAll('input[name="expireMode"]');
+            const expireDaysGroup = document.getElementById('expireDaysGroup');
+            const expireDatetimeGroup = document.getElementById('expireDatetimeGroup');
+            const expireDaysInput = document.getElementById('expireDays');
+            const expireAtLocalInput = document.getElementById('expireAtLocal');
+            const expireAtInput = document.getElementById('expireAt');
+            const form = document.querySelector('form[action="/panel/users"]');
+
+            function updateExpireMode() {
+                const selectedMode = document.querySelector('input[name="expireMode"]:checked').value;
+
+                if (selectedMode === 'datetime') {
+                    expireDaysGroup.style.display = 'none';
+                    expireDatetimeGroup.style.display = 'block';
+                    expireDaysInput.value = '';
+                } else {
+                    expireDaysGroup.style.display = 'block';
+                    expireDatetimeGroup.style.display = 'none';
+                    expireAtLocalInput.value = '';
+                    expireAtInput.value = '';
+                }
+            }
+
+            function syncExpireAt() {
+                if (!expireAtLocalInput.value) {
+                    expireAtInput.value = '';
+                    return;
+                }
+
+                const localDateTime = new Date(expireAtLocalInput.value);
+                if (Number.isNaN(localDateTime.getTime())) {
+                    expireAtInput.value = '';
+                    return;
+                }
+
+                expireAtInput.value = localDateTime.toISOString();
+            }
+
+            expireModeInputs.forEach((input) => {
+                input.addEventListener('change', updateExpireMode);
+            });
+
+            expireAtLocalInput.addEventListener('change', syncExpireAt);
+            expireAtLocalInput.addEventListener('input', syncExpireAt);
+
+            form.addEventListener('submit', () => {
+                const selectedMode = document.querySelector('input[name="expireMode"]:checked').value;
+
+                if (selectedMode === 'days') {
+                    expireAtLocalInput.value = '';
+                    expireAtInput.value = '';
+                    return;
+                }
+
+                expireDaysInput.value = '';
+                syncExpireAt();
+            });
+
+            updateExpireMode();
+        })();
+    </script>
 </div>

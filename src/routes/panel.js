@@ -719,7 +719,7 @@ router.get('/users/add', requireAuth, async (req, res) => {
 // POST /panel/users - Создание пользователя
 router.post('/users', requireAuth, async (req, res) => {
     try {
-        const { userId, username, trafficLimitGB, expireDays, enabled, maxDevices } = req.body;
+        const { userId, username, trafficLimitGB, expireDays, expireAt: expireAtRaw, enabled, maxDevices } = req.body;
         
         if (!userId) {
             return res.status(400).send('userId обязателен');
@@ -742,7 +742,21 @@ router.post('/users', requireAuth, async (req, res) => {
         
         // Expire
         let expireAt = null;
-        if (expireDays && parseInt(expireDays) > 0) {
+        const hasExpireAt = typeof expireAtRaw === 'string' && expireAtRaw.trim() !== '';
+
+        if (hasExpireAt) {
+            const parsedExpireAt = new Date(expireAtRaw);
+
+            if (Number.isNaN(parsedExpireAt.getTime())) {
+                return res.status(400).send('Некорректный формат даты/времени окончания');
+            }
+
+            if (parsedExpireAt.getTime() < Date.now()) {
+                return res.status(400).send('Дата/время окончания не может быть в прошлом');
+            }
+
+            expireAt = parsedExpireAt;
+        } else if (expireDays && parseInt(expireDays) > 0) {
             expireAt = new Date();
             expireAt.setDate(expireAt.getDate() + parseInt(expireDays));
         }
@@ -1808,4 +1822,3 @@ router.post('/settings/test-webhook', requireAuth, async (req, res) => {
 });
 
 module.exports = router;
-
