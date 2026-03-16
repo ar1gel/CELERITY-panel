@@ -459,7 +459,11 @@ WantedBy=multi-user.target
  * @param {string} clientInboundTag - Tag of the client-facing inbound (e.g. 'vless-in')
  */
 function applyReversePortal(config, portalLinks, clientInboundTag) {
-    if (!portalLinks || portalLinks.length === 0) return;
+    if (!portalLinks || portalLinks.length === 0) {
+        console.log('[applyReversePortal] No portal links, skipping');
+        return;
+    }
+    console.log(`[applyReversePortal] Applying ${portalLinks.length} link(s), clientInboundTag=${clientInboundTag}`);
 
     config.reverse = config.reverse || {};
     config.reverse.portals = config.reverse.portals || [];

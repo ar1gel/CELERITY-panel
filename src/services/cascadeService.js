@@ -312,10 +312,19 @@ class CascadeService {
             active: true,
         });
 
+        logger.info(`[Cascade] Portal ${portalNode.name} (${portalNode._id}): found ${portalLinks.length} active link(s)`);
+        if (portalLinks.length > 0) {
+            logger.info(`[Cascade] Links: ${portalLinks.map(l => `${l.name} (${l._id})`).join(', ')}`);
+        }
+
         const inboundTag = portalNode.xray?.inboundTag || 'vless-in';
         configGenerator.applyReversePortal(config, portalLinks, inboundTag);
 
         const finalConfig = JSON.stringify(config, null, 2);
+        
+        logger.info(`[Cascade] Portal config has reverse.portals: ${!!(config.reverse?.portals?.length)}`);
+        logger.info(`[Cascade] Portal config inbounds count: ${config.inbounds?.length}`);
+        logger.info(`[Cascade] Portal config routing rules count: ${config.routing?.rules?.length}`);
 
         if (portalNode.ssh?.password || portalNode.ssh?.privateKey) {
             const ssh = new NodeSSH(portalNode);
