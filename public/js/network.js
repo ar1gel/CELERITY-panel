@@ -373,11 +373,6 @@
         document.getElementById('nodeInfoModal').classList.add('active');
     }
 
-    function closeInfoModal() {
-        document.getElementById('nodeInfoModal').classList.remove('active');
-        cy.elements(':selected').unselect();
-    }
-
     function onNodeTap(evt) {
         const d = evt.target.data();
         const statusClass = d.status || 'offline';
