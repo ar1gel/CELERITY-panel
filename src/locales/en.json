@@ -828,6 +828,7 @@
   "mcp": {
     "title": "MCP Integration",
     "subtitle": "Connect AI assistants to manage your panel",
+    "motto": "Censor uses AI to block? Time to get your own.",
     "badge": "AI",
     "endpoint": "Endpoint",
     "copyEndpoint": "Copy Endpoint",
