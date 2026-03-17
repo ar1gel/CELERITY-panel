@@ -722,6 +722,69 @@ class CascadeService {
         }
     }
 
+    /**
+     * Resolve the full downstream forward-chain path starting from a node.
+     *
+     * Supports both styles currently present in the UI/data model:
+     * 1. Pairwise graph links: A->B, B->C, C->D
+     * 2. Head-defined ordered hops: A->B, A->C, A->D with priority ordering
+     *
+     * Returned links are ordered from the nearest downstream hop to the final
+     * exit node and are ready to be passed to applyForwardChain().
+     *
+     * @param {string|ObjectId} startNodeId
+     * @param {Set<string>} [excludeSet]
+     * @returns {Promise<Array>}
+     */
+    async _getForwardChainLinks(startNodeId, excludeSet = new Set()) {
+        const allForwardLinks = (await CascadeLink.find({
+            mode: 'forward',
+            active: true,
+        }).populate('bridgeNode')).filter(l => !excludeSet.has(String(l._id)));
+
+        if (allForwardLinks.length === 0) return [];
+
+        const outgoingMap = new Map();
+        for (const link of allForwardLinks) {
+            const portalId = String(link.portalNode._id || link.portalNode);
+            if (!outgoingMap.has(portalId)) outgoingMap.set(portalId, []);
+            outgoingMap.get(portalId).push(link);
+        }
+
+        const ordered = [];
+        const visitedLinks = new Set();
+        const visitedNodes = new Set();
+        let currentNodeId = String(startNodeId);
+
+        while (true) {
+            const outgoing = (outgoingMap.get(currentNodeId) || [])
+                .filter(l => !visitedLinks.has(String(l._id)))
+                .sort((a, b) => (a.priority || 100) - (b.priority || 100));
+
+            if (outgoing.length === 0) break;
+
+            for (const link of outgoing) {
+                ordered.push(link);
+                visitedLinks.add(String(link._id));
+            }
+
+            visitedNodes.add(currentNodeId);
+            const tailLink = outgoing[outgoing.length - 1];
+            const nextNodeId = String(tailLink.bridgeNode?._id || tailLink.bridgeNode);
+
+            if (!nextNodeId || visitedNodes.has(nextNodeId)) {
+                if (visitedNodes.has(nextNodeId)) {
+                    logger.warn(`[Cascade] Forward chain cycle detected from node ${currentNodeId}, stopping path resolution`);
+                }
+                break;
+            }
+
+            currentNodeId = nextNodeId;
+        }
+
+        return ordered;
+    }
+
     // ==================== INTERNAL HELPERS ====================
 
     /**
@@ -746,7 +809,7 @@ class CascadeService {
         }).populate('bridgeNode')).filter(l => !excludeSet.has(String(l._id)));
 
         const reverseLinks = allPortalLinks.filter(l => l.mode !== 'forward');
-        const forwardLinks = allPortalLinks.filter(l => l.mode === 'forward');
+        const forwardLinks = await this._getForwardChainLinks(portalNode._id, excludeSet);
 
         const inboundTag = portalNode.xray?.inboundTag || 'vless-in';
 

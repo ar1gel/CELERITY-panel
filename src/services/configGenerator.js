@@ -946,17 +946,18 @@ function buildCascadeTunnelStreamSettings(link, opts = {}) {
  *   - Routing: client traffic -> "to-bridge" (the exit node outbound)
  *   - Flow: Portal -> Relay -> Bridge -> Internet
  *
- * Links are sorted by priority ASC (lower = closer to client).
- * The LAST outbound (exit/bridge) is the routing entry point.
- * Each outbound (except the first/nearest) has proxySettings.tag pointing
- * to the previous outbound (one hop closer to client).
+ * Links must be passed in hop order, from the nearest downstream node to the
+ * final exit node. The LAST outbound (exit/bridge) is the routing entry point.
+ * Each outbound (except the first/nearest) has proxySettings.tag pointing to
+ * the previous outbound (one hop closer to client).
  *
  * Forward chain is always a sequential chain, NOT parallel alternatives —
  * no balancer is used. For parallel exit paths, create separate chains.
  *
  * @param {Object} config - Parsed Xray config object (mutated in place)
- * @param {Array} forwardLinks - CascadeLink documents (mode='forward', portalNode=this)
- *                                Must have bridgeNode populated
+ * @param {Array} forwardLinks - Ordered CascadeLink documents for the full
+ *                               downstream path starting from this node.
+ *                               Must have bridgeNode populated.
  * @param {string} clientInboundTag - Tag of the client-facing inbound
  */
 function applyForwardChain(config, forwardLinks, clientInboundTag) {
@@ -966,9 +967,9 @@ function applyForwardChain(config, forwardLinks, clientInboundTag) {
     config.routing = config.routing || { rules: [] };
     config.routing.rules = config.routing.rules || [];
 
-    // Sort by priority ASC: lower value = closer to client (first hop / relay)
-    // Last element = exit node (bridge)
-    const sorted = [...forwardLinks].sort((a, b) => (a.priority || 100) - (b.priority || 100));
+    // Caller provides the full downstream path in hop order:
+    // relay1, relay2, ..., exit-bridge.
+    const sorted = [...forwardLinks];
 
     const tags = [];
     for (let i = 0; i < sorted.length; i++) {
