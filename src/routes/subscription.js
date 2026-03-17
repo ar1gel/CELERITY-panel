@@ -118,13 +118,13 @@ async function getActiveNodes(user) {
     
     const lb = settings.loadBalancing || {};
     
-    // Exclude exit (bridge) nodes — users connect to entry (portal) nodes,
-    // traffic is routed through the cascade automatically
+    // Exclude exit (bridge) and relay nodes — users connect to entry (portal) or standalone nodes only.
+    // Traffic is routed through the cascade automatically.
     {
         const beforeCascadeFilter = nodes.length;
-        nodes = nodes.filter(n => n.cascadeRole !== 'exit');
+        nodes = nodes.filter(n => n.cascadeRole !== 'exit' && n.cascadeRole !== 'relay');
         if (nodes.length < beforeCascadeFilter) {
-            logger.debug(`[Sub] Filtered out ${beforeCascadeFilter - nodes.length} exit (bridge) nodes from subscription`);
+            logger.debug(`[Sub] Filtered out ${beforeCascadeFilter - nodes.length} exit/relay nodes from subscription`);
         }
     }
 

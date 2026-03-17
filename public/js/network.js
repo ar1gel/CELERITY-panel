@@ -28,6 +28,7 @@
         entry:      '#150e3a',
         exit:       '#1a0e00',
         relay:      '#130a2a',
+        internet:   '#0a2e1a',
     };
 
     const ROLE_BORDER_ACCENT = {
@@ -35,6 +36,7 @@
         entry:      '#6366f1',
         exit:       '#f59e0b',
         relay:      '#8b5cf6',
+        internet:   '#22c55e',
     };
 
     const ROLE_GLOW = {
@@ -42,6 +44,7 @@
         entry:  '#6366f1',
         exit:   '#f59e0b',
         relay:  '#8b5cf6',
+        internet: '#22c55e',
     };
 
     const ROLE_LABELS = {
@@ -49,6 +52,7 @@
         entry:  i18n.rolePortal || 'PORTAL',
         relay:  i18n.roleRelay  || 'RELAY',
         exit:   i18n.roleBridge || 'BRIDGE',
+        internet: '',
     };
 
     let cy = null;
@@ -259,6 +263,23 @@
                     'shadow-opacity': 0.5,
                 },
             },
+            // ---- Internet node — globe icon ----
+            {
+                selector: 'node[cascadeRole = "internet"]',
+                style: {
+                    'shape': 'ellipse',
+                    'width': 60,
+                    'height': 60,
+                    'background-color': '#0a2e1a',
+                    'border-width': 2,
+                    'border-color': '#22c55e',
+                    'label': '🌐\nInternet',
+                    'font-size': '10px',
+                    'shadow-blur': 20,
+                    'shadow-color': '#22c55e',
+                    'shadow-opacity': 0.5,
+                },
+            },
             // ---- Selected ----
             {
                 selector: 'node:selected',
@@ -341,6 +362,17 @@
                     'shadow-opacity': 0.6,
                     'shadow-offset-x': 0,
                     'shadow-offset-y': 0,
+                },
+            },
+            // ---- Internet edge — green dashed ----
+            {
+                selector: 'edge[?isInternetEdge]',
+                style: {
+                    'width': 1.5,
+                    'line-color': '#22c55e',
+                    'target-arrow-color': '#22c55e',
+                    'line-dash-pattern': [4, 6],
+                    'opacity': 0.7,
                 },
             },
         ];
@@ -527,6 +559,20 @@
 
     function onNodeTap(evt) {
         const d = evt.target.data();
+
+        // Internet node - show simple info
+        if (d.cascadeRole === 'internet') {
+            const html =
+                '<div class="info-grid">' +
+                '<div class="info-field" style="text-align:center; padding:20px;">' +
+                '<div style="font-size:48px; margin-bottom:10px;">🌐</div>' +
+                '<div style="color:#22c55e; font-size:14px;">' + (i18n.internetDesc || 'Traffic exits to the Internet from connected nodes') + '</div>' +
+                '</div>' +
+                '</div>';
+            openInfoModal('Internet', html);
+            return;
+        }
+
         const sc = d.status || 'offline';
         const roleLabel = d.roleLabel
             ? '<span class="info-role-badge role-' + d.cascadeRole + '">' + d.roleLabel + '</span>'
@@ -554,6 +600,19 @@
         const d = evt.target.data();
         const sc = d.status || 'pending';
         const lid = d.linkId;
+
+        // Internet edge - show simple info without actions
+        if (d.isInternetEdge) {
+            const html =
+                '<div class="info-grid">' +
+                '<div class="info-field" style="text-align:center; padding:20px;">' +
+                '<div style="font-size:32px; margin-bottom:10px;">🌐</div>' +
+                '<div style="color:#22c55e; font-size:14px;">' + (i18n.internetExitDesc || 'Internet exit point') + '</div>' +
+                '</div>' +
+                '</div>';
+            openInfoModal(i18n.internetExit || 'Internet Exit', html);
+            return;
+        }
 
         const html =
             '<div class="info-grid">' +

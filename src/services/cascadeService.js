@@ -534,6 +534,48 @@ class CascadeService {
             },
         }));
 
+        // Add virtual "Internet" node and edges from exit/standalone nodes
+        const exitNodes = allNodes.filter(n =>
+            n.cascadeRole === 'exit' || n.cascadeRole === 'standalone' || !n.cascadeRole
+        );
+
+        if (exitNodes.length > 0) {
+            nodes.push({
+                data: {
+                    id: 'internet',
+                    label: 'Internet',
+                    ip: '',
+                    domain: '',
+                    flag: '🌐',
+                    type: 'internet',
+                    status: 'online',
+                    onlineUsers: 0,
+                    cascadeRole: 'internet',
+                    country: '',
+                    port: null,
+                },
+                position: undefined,
+            });
+
+            for (const exitNode of exitNodes) {
+                edges.push({
+                    data: {
+                        id: `internet-${exitNode._id}`,
+                        linkId: null,
+                        source: String(exitNode._id),
+                        target: 'internet',
+                        label: '',
+                        status: exitNode.status === 'online' ? 'online' : 'offline',
+                        tunnelPort: null,
+                        latencyMs: null,
+                        tunnelProtocol: null,
+                        tunnelTransport: null,
+                        isInternetEdge: true,
+                    },
+                });
+            }
+        }
+
         const topology = { nodes, edges };
         await cacheSet(TOPOLOGY_CACHE_KEY, JSON.stringify(topology), TOPOLOGY_CACHE_TTL);
         return topology;
