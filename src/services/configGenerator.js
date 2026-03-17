@@ -999,12 +999,13 @@ function applyForwardChain(config, forwardLinks, clientInboundTag) {
             outbound.mux = { enabled: true, concurrency: link.muxConcurrency || 8 };
         }
 
-        // Each outbound (except the first/nearest) uses the previous one as proxy
-        // i=0 (nearest relay): no proxySettings — direct connection from Portal
-        // i=1: proxySettings.tag = tags[0] — connect through relay
-        // i=2: proxySettings.tag = tags[1] — connect through the one before, etc.
+        // Each outbound (except the first/nearest) uses the previous one as a
+        // transport-layer proxy. This is required for chained REALITY hops:
+        // plain proxySettings.tag path in Xray's outbound handler only wraps
+        // TLS, while transportLayer=true maps to sockopt.dialerProxy and lets
+        // the current outbound apply its own stream security (including REALITY).
         if (i > 0) {
-            outbound.proxySettings = { tag: tags[i - 1] };
+            outbound.proxySettings = { tag: tags[i - 1], transportLayer: true };
         }
 
         config.outbounds.push(outbound);
