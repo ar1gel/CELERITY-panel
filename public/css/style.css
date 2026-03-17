@@ -2412,13 +2412,13 @@ html {
 }
 
 .role-card-icon.role-standalone { background: rgba(71, 85, 105, 0.3); color: #94a3b8; }
-.role-card-icon.role-entry      { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; }
-.role-card-icon.role-exit       { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
+.role-card-icon.role-portal     { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; }
+.role-card-icon.role-bridge     { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
 .role-card-icon.role-relay      { background: rgba(139, 92, 246, 0.2); color: #c4b5fd; }
 
 .role-card.active .role-card-icon.role-standalone { background: rgba(71, 85, 105, 0.5); }
-.role-card.active .role-card-icon.role-entry      { background: rgba(99, 102, 241, 0.3); }
-.role-card.active .role-card-icon.role-exit       { background: rgba(245, 158, 11, 0.3); }
+.role-card.active .role-card-icon.role-portal     { background: rgba(99, 102, 241, 0.3); }
+.role-card.active .role-card-icon.role-bridge     { background: rgba(245, 158, 11, 0.3); }
 .role-card.active .role-card-icon.role-relay      { background: rgba(139, 92, 246, 0.3); }
 
 .role-card-body {

@@ -122,7 +122,7 @@ async function getActiveNodes(user) {
     // Traffic is routed through the cascade automatically.
     {
         const beforeCascadeFilter = nodes.length;
-        nodes = nodes.filter(n => n.cascadeRole !== 'exit' && n.cascadeRole !== 'relay');
+        nodes = nodes.filter(n => n.cascadeRole !== 'bridge' && n.cascadeRole !== 'relay');
         if (nodes.length < beforeCascadeFilter) {
             logger.debug(`[Sub] Filtered out ${beforeCascadeFilter - nodes.length} exit/relay nodes from subscription`);
         }

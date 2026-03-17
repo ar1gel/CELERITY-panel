@@ -51,20 +51,20 @@
                             <span class="role-card-desc"><%= t('nodes.roleStandalone') %></span>
                         </span>
                     </label>
-                    <label class="role-card <%= node?.cascadeRole === 'entry' ? 'active' : '' %>"
-                           onclick="selectCascadeRole('entry', this)">
-                        <span class="role-card-icon role-entry"><i class="ti ti-door-enter"></i></span>
+                    <label class="role-card <%= node?.cascadeRole === 'portal' ? 'active' : '' %>"
+                           onclick="selectCascadeRole('portal', this)">
+                        <span class="role-card-icon role-portal"><i class="ti ti-door-enter"></i></span>
                         <span class="role-card-body">
-                            <span class="role-card-name">Entry <small>(Portal)</small></span>
-                            <span class="role-card-desc"><%= t('nodes.roleEntry') %></span>
+                            <span class="role-card-name">Portal</span>
+                            <span class="role-card-desc"><%= t('nodes.rolePortal') %></span>
                         </span>
                     </label>
-                    <label class="role-card <%= node?.cascadeRole === 'exit' ? 'active' : '' %>"
-                           onclick="selectCascadeRole('exit', this)">
-                        <span class="role-card-icon role-exit"><i class="ti ti-door-exit"></i></span>
+                    <label class="role-card <%= node?.cascadeRole === 'bridge' ? 'active' : '' %>"
+                           onclick="selectCascadeRole('bridge', this)">
+                        <span class="role-card-icon role-bridge"><i class="ti ti-door-exit"></i></span>
                         <span class="role-card-body">
-                            <span class="role-card-name">Exit <small>(Bridge)</small></span>
-                            <span class="role-card-desc"><%= t('nodes.roleExit') %></span>
+                            <span class="role-card-name">Bridge</span>
+                            <span class="role-card-desc"><%= t('nodes.roleBridge') %></span>
                         </span>
                     </label>
                     <label class="role-card <%= node?.cascadeRole === 'relay' ? 'active' : '' %>"
@@ -85,13 +85,13 @@
                     <small><%= t('nodes.countryHint') %></small>
                 </div>
 
-                <div class="alert alert-info" id="cascadeExitHint" style="<%= node?.cascadeRole === 'exit' ? '' : 'display:none' %>">
+                <div class="alert alert-info" id="cascadeBridgeHint" style="<%= node?.cascadeRole === 'bridge' ? '' : 'display:none' %>">
                     <i class="ti ti-info-circle"></i>
-                    <%= t('nodes.exitNodeHint') %>
+                    <%= t('nodes.bridgeNodeHint') %>
                 </div>
-                <div class="alert alert-info" id="cascadeEntryHint" style="<%= node?.cascadeRole === 'entry' ? '' : 'display:none' %>">
+                <div class="alert alert-info" id="cascadePortalHint" style="<%= node?.cascadeRole === 'portal' ? '' : 'display:none' %>">
                     <i class="ti ti-info-circle"></i>
-                    <%= t('nodes.entryNodeHint') %>
+                    <%= t('nodes.portalNodeHint') %>
                 </div>
             </div>
 
@@ -925,19 +925,19 @@ function selectCascadeRole(role, cardEl) {
 
 function onCascadeRoleChange() {
     const role = document.getElementById('cascadeRole').value;
-    const isExit = role === 'exit';
-    const isEntry = role === 'entry';
+    const isBridge = role === 'bridge';
+    const isPortal = role === 'portal';
 
-    var exitHint = document.getElementById('cascadeExitHint');
-    var entryHint = document.getElementById('cascadeEntryHint');
-    if (exitHint) exitHint.style.display = isExit ? '' : 'none';
-    if (entryHint) entryHint.style.display = isEntry ? '' : 'none';
+    var bridgeHint = document.getElementById('cascadeBridgeHint');
+    var portalHint = document.getElementById('cascadePortalHint');
+    if (bridgeHint) bridgeHint.style.display = isBridge ? '' : 'none';
+    if (portalHint) portalHint.style.display = isPortal ? '' : 'none';
 
-    // Exit (Bridge) nodes: hide all client-facing settings.
+    // Bridge nodes: hide all client-facing settings.
     // They only need name, IP, SSH, and cascade role.
     ['xraySection', 'networkSection', 'limitsSection'].forEach(function(id) {
         var el = document.getElementById(id);
-        if (el) el.style.display = isExit ? 'none' : '';
+        if (el) el.style.display = isBridge ? 'none' : '';
     });
 }
 

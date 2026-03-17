@@ -136,7 +136,7 @@ const hyNodeSchema = new mongoose.Schema({
     // Cascade topology fields
     cascadeRole: {
         type: String,
-        enum: ['standalone', 'entry', 'relay', 'exit'],
+        enum: ['standalone', 'portal', 'relay', 'bridge'],
         default: 'standalone',
     },
     mapPosition: {

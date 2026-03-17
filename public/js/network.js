@@ -25,33 +25,33 @@
 
     const ROLE_BG = {
         standalone: '#0f172a',
-        entry:      '#150e3a',
-        exit:       '#1a0e00',
+        portal:     '#150e3a',
+        bridge:     '#1a0e00',
         relay:      '#130a2a',
         internet:   '#0a2e1a',
     };
 
     const ROLE_BORDER_ACCENT = {
         standalone: '#334155',
-        entry:      '#6366f1',
-        exit:       '#f59e0b',
+        portal:     '#6366f1',
+        bridge:     '#f59e0b',
         relay:      '#8b5cf6',
         internet:   '#22c55e',
     };
 
     const ROLE_GLOW = {
         standalone: null,
-        entry:  '#6366f1',
-        exit:   '#f59e0b',
-        relay:  '#8b5cf6',
+        portal:   '#6366f1',
+        bridge:   '#f59e0b',
+        relay:    '#8b5cf6',
         internet: '#22c55e',
     };
 
     const ROLE_LABELS = {
         standalone: '',
-        entry:  i18n.rolePortal || 'PORTAL',
-        relay:  i18n.roleRelay  || 'RELAY',
-        exit:   i18n.roleBridge || 'BRIDGE',
+        portal:   i18n.rolePortal || 'PORTAL',
+        relay:    i18n.roleRelay  || 'RELAY',
+        bridge:   i18n.roleBridge || 'BRIDGE',
         internet: '',
     };
 

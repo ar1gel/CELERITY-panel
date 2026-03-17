@@ -536,7 +536,7 @@ class CascadeService {
 
         // Add virtual "Internet" node and edges from exit/standalone nodes
         const exitNodes = allNodes.filter(n =>
-            n.cascadeRole === 'exit' || n.cascadeRole === 'standalone' || !n.cascadeRole
+            n.cascadeRole === 'bridge' || n.cascadeRole === 'standalone' || !n.cascadeRole
         );
 
         if (exitNodes.length > 0) {
@@ -789,8 +789,8 @@ class CascadeService {
 
             let role = 'standalone';
             if (isPortal && isBridge) role = 'relay';
-            else if (isPortal) role = 'entry';
-            else if (isBridge) role = 'exit';
+            else if (isPortal) role = 'portal';
+            else if (isBridge) role = 'bridge';
 
             if (node.cascadeRole !== role) {
                 bulkOps.push({

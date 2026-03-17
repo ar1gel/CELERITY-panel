@@ -701,8 +701,8 @@ router.post('/nodes/:id/setup', requireAuth, async (req, res) => {
         logger.info(`[Panel] Starting setup for node ${node.name} (type: ${node.type || 'hysteria'}, role: ${node.cascadeRole || 'standalone'})`);
         
         let result;
-        if (node.type === 'xray' && node.cascadeRole === 'exit') {
-            // Exit (Bridge) nodes: install Xray only, no Agent, no Reality, no client config.
+        if (node.type === 'xray' && node.cascadeRole === 'bridge') {
+            // Bridge nodes: install Xray only, no Agent, no Reality, no client config.
             // Actual bridge config is deployed via cascade links.
             result = await nodeSetup.setupXrayNode(node, { restartService: false, exitOnly: true });
             if (result.success) {
@@ -710,7 +710,7 @@ router.post('/nodes/:id/setup', requireAuth, async (req, res) => {
                 result.logs.push('[Bridge] Xray installed. Create a cascade link to deploy bridge config.');
             }
         } else if (node.type === 'xray') {
-            // Standalone and Entry (Portal) nodes: full setup with Agent
+            // Standalone and Portal nodes: full setup with Agent
             result = await nodeSetup.setupXrayNodeWithAgent(node, { restartService: true });
         } else {
             result = await nodeSetup.setupNode(node, {
@@ -723,11 +723,11 @@ router.post('/nodes/:id/setup', requireAuth, async (req, res) => {
         if (result.success) {
             const updateFields = { status: 'online', lastSync: new Date(), lastError: '', healthFailures: 0 };
             if (node.type !== 'xray') updateFields.useTlsFiles = result.useTlsFiles;
-            if (node.cascadeRole === 'exit') updateFields.status = 'offline';
+            if (node.cascadeRole === 'bridge') updateFields.status = 'offline';
             await HyNode.findByIdAndUpdate(req.params.id, { $set: updateFields });
 
-            // After entry/standalone setup, auto-redeploy any cascade links
-            if (node.type === 'xray' && node.cascadeRole !== 'exit') {
+            // After portal/standalone setup, auto-redeploy any cascade links
+            if (node.type === 'xray' && node.cascadeRole !== 'bridge') {
                 const CascadeLink = require('../models/cascadeLinkModel');
                 const linkCount = await CascadeLink.countDocuments({
                     $or: [{ portalNode: node._id }, { bridgeNode: node._id }],
