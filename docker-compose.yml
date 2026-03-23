@@ -42,9 +42,6 @@ services:
     image: caddy:2-alpine
     container_name: hysteria-caddy
     restart: always
-    ports:
-      - "8080:80"
-      - "4443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
