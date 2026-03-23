@@ -1,4 +1,5 @@
 {$PANEL_DOMAIN} {
+    tls internal
     encode gzip zstd
 
     reverse_proxy backend:3000 {
